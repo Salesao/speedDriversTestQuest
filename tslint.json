@@ -7,7 +7,7 @@
 	],
 	"jsRules": {},
 	"rulesDirectory": [],
-
+    "files": ["**/*.ts", "**/*.tsx"],
 	"rules": {
 		"interface-name": true,
 		"no-empty-interface": false,
@@ -56,7 +56,7 @@
 			}
 		],
 		"no-internal-module": true,
-		"no-trailing-whitespace": true,
+		"no-trailing-whitespace": false,
 		"no-null-keyword": false,
 		"prefer-const": true,
 		"jsdoc-format": true,

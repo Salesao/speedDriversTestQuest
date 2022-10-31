@@ -23,6 +23,8 @@ module.exports = {
 					'@redux': './src/redux',
 					'@UI': './src/UI',
 					'@utils': './src/utils',
+					'@hooks': './src/hooks',
+					'@img': './src/img',
 				},
 			},
 		],
