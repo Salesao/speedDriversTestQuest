@@ -1,0 +1,70 @@
+{
+	"extends": [
+		"tslint:recommended",
+		"tslint-config-standard",
+		"tslint-react",
+		"tslint-config-prettier"
+	],
+	"jsRules": {},
+	"rulesDirectory": [],
+
+	"rules": {
+		"interface-name": true,
+		"no-empty-interface": false,
+		"no-empty": false,
+		"no-shadowed-variable": false,
+		"no-console": false,
+		"class-name": true,
+		"jsx-no-lambda": false,
+		"jsx-boolean-value": false,
+		"no-var-requires": false,
+		"jsx-self-close": false,
+		"no-unused-expression": false,
+		"comment-format": [true, "check-space"],
+
+		"indent": [false, "tabs", 2],
+		"one-line": [true, "check-open-brace", "check-whitespace"],
+		"no-focused-test": true,
+		"no-var-keyword": true,
+		"quotemark": [false, "double", "avoid-escape"],
+		"semicolon": [true, "always", "ignore-bound-class-methods"],
+		"whitespace": [
+			true,
+			"check-branch",
+			"check-decl",
+			"check-operator",
+			"check-module",
+			"check-separator",
+			"check-type"
+		],
+        
+		"typedef-whitespace": [
+			true,
+			{
+				"call-signature": "nospace",
+				"index-signature": "nospace",
+				"parameter": "nospace",
+				"property-declaration": "nospace",
+				"variable-declaration": "nospace"
+			},
+			{
+				"call-signature": "onespace",
+				"index-signature": "onespace",
+				"parameter": "onespace",
+				"property-declaration": "onespace",
+				"variable-declaration": "onespace"
+			}
+		],
+		"no-internal-module": true,
+		"no-trailing-whitespace": true,
+		"no-null-keyword": false,
+		"prefer-const": true,
+		"jsdoc-format": true,
+		"ordered-imports": false,
+		"deprecation": false,
+		"no-string-literal": false
+	},
+	"linterOptions": {
+		"exclude": ["./node_modules/**", "*.json", "*.js", "**/*.json"]
+	}
+}
