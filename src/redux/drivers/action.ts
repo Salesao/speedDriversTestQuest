@@ -14,6 +14,20 @@ export const setDrivers = (
 	payload,
 });
 
+export const getDriverStandingList = (
+	payload: T.IGetDriverStandingsList['payload'],
+): T.IGetDriverStandingsList => ({
+	type: T.GET_DRIVER_STANDINGS_LIST,
+	payload,
+});
+
+export const setDriverStandingList = (
+	payload: T.ISetDriverStandingsList['payload'],
+): T.ISetDriverStandingsList => ({
+	type: T.SET_DRIVER_STANDINGS_LIST,
+	payload,
+});
+
 export const setLimitForDrivers = (
 	payload: T.ISetLimitForDrivers['payload'],
 ): T.ISetLimitForDrivers => ({

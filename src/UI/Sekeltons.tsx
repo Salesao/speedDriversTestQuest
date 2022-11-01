@@ -31,3 +31,30 @@ export const SkeletonDriversList = () => {
 		</SkeletonPlaceholder>
 	);
 };
+
+export const SkeletonStandingList = () => {
+	return (
+		<SkeletonPlaceholder>
+			<View style={{ alignItems: 'center' }}>
+				{[
+					...Array.from(Array(5).keys()).map((_, idx) => (
+						<React.Fragment key={idx}>
+							<SkeletonPlaceholder.Item
+								width={'100%'}
+								height={5}
+								marginTop={20}
+							/>
+							<SkeletonPlaceholder.Item
+								width={30}
+								height={10}
+								marginVertical={40}
+								borderRadius={4}
+							/>
+							<SkeletonPlaceholder.Item width={'100%'} height={5} />
+						</React.Fragment>
+					)),
+				]}
+			</View>
+		</SkeletonPlaceholder>
+	);
+};

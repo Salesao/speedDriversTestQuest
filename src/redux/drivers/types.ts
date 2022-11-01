@@ -1,6 +1,9 @@
 export const SET_DRIVERS = 'DRIVERS/SET_DRIVERS';
 export const GET_DRIVERS = 'DRIVERS/GET_DRIVERS';
 
+export const SET_DRIVER_STANDINGS_LIST = 'DRIVERS/SET_DRIVER_STANDINGS_LIST';
+export const GET_DRIVER_STANDINGS_LIST = 'DRIVERS/GET_DRIVER_STANDINGS_LIST';
+
 export const SET_LIMIT_FOR_DRIVERS = 'DRIVERS/SET_LIMIT_FOR_DRIVERS';
 export const SET_OFFSET_FOR_DRIVERS = 'DRIVERS/SET_OFFSET_FOR_DRIVERS';
 export const SET_TOTAL_DRIVERS = 'DRIVERS/SET_TOTAL_DRIVERS';
@@ -12,6 +15,10 @@ export interface IGetDriversProps {
 	callback: (err?: string) => void;
 }
 
+export interface IGetDriverStandingsProps
+	extends IGetDriversProps,
+		Pick<IDrivers, 'driverId'> {}
+
 export interface IDrivers {
 	dateOfBirth: string;
 	driverId: string;
@@ -19,13 +26,17 @@ export interface IDrivers {
 	givenName: string;
 	nationality: string;
 	url: string; // Сводка о водиле в википедии
+	standingList?: IStandingsList[];
 }
+
+export type TDriverStandingList = IStandingsList[] | null;
 
 export interface IDriversState {
 	drivers: IDrivers[];
 	limit: number;
 	offset: number;
 	total: number | null;
+	driverStandingsList: TDriverStandingList;
 }
 
 export interface IResultRequestDrivers {
@@ -36,6 +47,33 @@ export interface IResultRequestDrivers {
 	total: number;
 	url: string;
 	xmlns: string;
+}
+
+export interface IConstructorsDriver {
+	constructorId: number;
+	name: string;
+	nationality: string;
+	url: string;
+}
+
+export interface IDriverStanding {
+	Constructors: IConstructorsDriver[];
+	Driver: IDrivers;
+	points: number;
+	position: number;
+	positionText: string;
+	wins: number;
+}
+
+export interface IStandingsList {
+	DriverStandings: IDriverStanding[];
+	round: number;
+	season: number;
+}
+
+export interface IResultRequestDriverStandingTable
+	extends Omit<IResultRequestDrivers, 'DriverTable'> {
+	StandingsTable: { driverId: string; StandingsLists: IStandingsList[] };
 }
 
 export interface ISetDrivers {
@@ -63,8 +101,19 @@ export interface ISetTotalDrivers {
 	payload: number;
 }
 
+export interface IGetDriverStandingsList {
+	type: typeof GET_DRIVER_STANDINGS_LIST;
+	payload: IGetDriverStandingsProps;
+}
+
+export interface ISetDriverStandingsList {
+	type: typeof SET_DRIVER_STANDINGS_LIST;
+	payload: TDriverStandingList;
+}
+
 export type TDriversActions =
 	| ISetDrivers
 	| ISetLimitForDrivers
 	| ISetOffsetForDrivers
-	| ISetTotalDrivers;
+	| ISetTotalDrivers
+	| ISetDriverStandingsList;

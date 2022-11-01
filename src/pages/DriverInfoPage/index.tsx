@@ -5,54 +5,120 @@ import {
 	IPageNavigationProps,
 } from '@layouts/Navigation/typesNavigation';
 import { PageLayout } from '@layouts/PageLayout';
+import {
+	getDriverStandingList,
+	setDriverStandingList,
+} from '@redux/drivers/action';
+import { driverStandingListSelect } from '@redux/drivers/reducer';
+import { IDriverStanding } from '@redux/drivers/types';
 import { BaseText } from '@UI/BaseText';
+import { ErrorRequest } from '@UI/ErrorRequest';
+import { SkeletonStandingList } from '@UI/Sekeltons';
 import { COLORS } from '@utils/colors';
+import { PADDING_CONTENT } from '@utils/defaultParams';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-	dateIsoIntlj,
-	defaultFormatDate,
-	PADDING_CONTENT,
-} from '@utils/defaultParams';
-import { DateTime, Interval } from 'luxon';
-import React, { useEffect } from 'react';
-import {
-	View,
-	Text,
 	StyleSheet,
-	Image,
 	Pressable,
-	StyleProp,
-	ViewStyle,
-	Linking,
 	Platform,
+	SectionList,
+	Animated,
+	View,
+	SectionListRenderItem,
 } from 'react-native';
+import {
+	EdgeInsets,
+	initialWindowMetrics,
+} from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
+import { DriverBaseInfo } from './DriverBaseInfo';
 
 type TDriverInfoPage = IPageNavigationProps<HomeStackParamList, 'driver'>;
+
+interface ISectionProps {
+	data: IDriverStanding[];
+	season: number;
+}
 
 export const DriverInfoPage: React.FC<TDriverInfoPage> = ({
 	route,
 	navigation,
 }) => {
-	const { dateOfBirth, nationality, givenName, familyName, url } = route.params;
-	const handlerBack = () => navigation.goBack();
-	const formatTimeDatebirthday = DateTime.fromFormat(dateOfBirth, dateIsoIntlj);
-	const yearDriver = Math.floor(
-		Interval.fromDateTimes(formatTimeDatebirthday, DateTime.now()).length(
-			'year',
-		),
+	const dispatch = useDispatch();
+	const { givenName, familyName, driverId, standingList } = route.params;
+	const driverStandingList = useSelector(driverStandingListSelect);
+	const [loadStandingList, setLoadStandingList] = useState(
+		standingList === undefined,
 	);
+	const [errorRequestStanding, setErrorRequestStanding] = useState<
+		string | null
+	>(null);
+	const { bottom } = initialWindowMetrics?.insets as EdgeInsets;
 
-	const styledMoreInfo = ({
-		pressed,
-	}: {
-		pressed: boolean;
-	}): StyleProp<ViewStyle> => ({
-		...styled.moreInfo,
-		opacity: pressed ? 0.5 : 1,
-	});
+	const handlerBack = () => navigation.goBack();
 
-	const handlerPressURL = async () => {
-		await Linking.openURL(url);
+	const sectionRenderItem: SectionListRenderItem<
+		IDriverStanding,
+		ISectionProps
+	> = ({ item }) => {
+		return (
+			<View style={{ paddingHorizontal: PADDING_CONTENT }}>
+				<BaseText fontSize={15}>Points: {item.points}</BaseText>
+				<BaseText fontSize={15}>Position: {item.position}</BaseText>
+				<BaseText fontSize={15}>Wins: {item.wins}</BaseText>
+				<BaseText fontSize={15}>
+					Constuctors: {item.Constructors.map(car => car.name).join(', ')}
+				</BaseText>
+			</View>
+		);
 	};
+
+	const handlerGetStandingList = () => {
+		errorRequestStanding !== null && setErrorRequestStanding(null);
+		dispatch(
+			getDriverStandingList({
+				driverId,
+				callback: err => {
+					setLoadStandingList(false);
+					err !== undefined && setErrorRequestStanding(err);
+				},
+			}),
+		);
+	};
+
+	const handlerTryAgainStanding = () => {
+		setLoadStandingList(true);
+		handlerGetStandingList();
+	};
+
+	const standingSectionList = (driverStandingList !== null ||
+		standingList !== undefined) && (
+		<SectionList
+			sections={
+				standingList === undefined
+					? // @ts-ignore
+					  driverStandingList.map(standing => ({
+							data: standing.DriverStandings,
+							season: standing.season,
+					  }))
+					: standingList?.map(standing => ({
+							data: standing.DriverStandings,
+							season: standing.season,
+					  }))
+			}
+			renderSectionHeader={({ section: { season } }) => (
+				<View style={styled.containerSectionHeader}>
+					<BaseText fontSize={35} fontWeight={'500'} color={COLORS.darkBlue}>
+						{season}
+					</BaseText>
+				</View>
+			)}
+			renderItem={sectionRenderItem}
+			style={{ borderTopWidth: 1, marginTop: 20, borderBottomWidth: 1 }}
+			contentContainerStyle={{ paddingBottom: bottom * 2 }}
+			showsVerticalScrollIndicator={false}
+		/>
+	);
 
 	const handlerSetOptionNavigation = () => {
 		navigation.setOptions({
@@ -63,7 +129,6 @@ export const DriverInfoPage: React.FC<TDriverInfoPage> = ({
 			},
 			headerTintColor: COLORS.white,
 			headerTitleAlign: 'center',
-
 			headerLeft: () => (
 				<Pressable onPress={handlerBack}>
 					<BaseText color={COLORS.white} fontSize={25} fontWeight={'500'}>
@@ -73,11 +138,14 @@ export const DriverInfoPage: React.FC<TDriverInfoPage> = ({
 			),
 		});
 
+		handlerGetStandingList();
+
 		return () => {
 			navigation.setOptions({
 				headerShown: false,
 				animation: Platform.OS === 'ios' ? 'flip' : 'slide_from_right',
 			});
+			dispatch(setDriverStandingList(null));
 		};
 	};
 
@@ -85,58 +153,19 @@ export const DriverInfoPage: React.FC<TDriverInfoPage> = ({
 
 	return (
 		<PageLayout>
-			<View style={styled.container}>
-				<Image style={{ width: 100, height: 100 }} source={EImg.driverPhoto} />
-				<BaseText
-					fontSize={20}
-					fontWeight={'500'}
-					color={COLORS.darkBlue}
-					dopStyle={{ paddingTop: 10 }}
-				>{`${givenName} ${familyName}`}</BaseText>
-				<View style={{ paddingVertical: 15 }}>
-					<View style={{ flexDirection: 'row' }}>
-						<BaseText fontSize={20} color={COLORS.darkGray}>
-							Birthday:{' '}
-						</BaseText>
-						<BaseText
-							fontSize={20}
-							color={COLORS.gray}
-						>{`${formatTimeDatebirthday.toFormat(
-							defaultFormatDate,
-						)} (${yearDriver} year)`}</BaseText>
-					</View>
-					<View style={{ flexDirection: 'row' }}>
-						<BaseText fontSize={20} color={COLORS.darkGray}>
-							Nationality:{' '}
-						</BaseText>
-						<BaseText fontSize={20} color={COLORS.gray}>
-							{nationality}
-						</BaseText>
-					</View>
-				</View>
-				<Pressable style={styledMoreInfo} onPress={handlerPressURL}>
-					<BaseText fontSize={20} color={COLORS.white} fontWeight={'500'}>
-						more info this cool gay
-					</BaseText>
-				</Pressable>
-			</View>
+			<DriverBaseInfo {...route.params} />
+			{!loadStandingList ? standingSectionList : <SkeletonStandingList />}
+			{errorRequestStanding !== null && (
+				<ErrorRequest tryAgain={handlerTryAgainStanding} />
+			)}
 		</PageLayout>
 	);
 };
 
 const styled = StyleSheet.create({
-	container: {
-		alignItems: 'center',
-		paddingHorizontal: PADDING_CONTENT,
-		flex: 1,
+	containerSectionHeader: {
+		paddingVertical: 40,
 		justifyContent: 'center',
-	},
-	moreInfo: {
-		padding: 15,
-		backgroundColor: COLORS.darkBlue,
-		borderRadius: 15,
 		alignItems: 'center',
-		justifyContent: 'center',
-		textAlign: 'center',
 	},
 });

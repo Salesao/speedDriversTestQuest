@@ -6,6 +6,7 @@ const initialState: T.IDriversState = {
 	limit: T.BASE_LIMIT,
 	offset: T.BASE_OFFSET,
 	total: null,
+	driverStandingsList: null,
 };
 
 export const DriversReducer = (
@@ -25,6 +26,9 @@ export const DriversReducer = (
 		case T.SET_TOTAL_DRIVERS: {
 			return { ...state, total: action.payload };
 		}
+		case T.SET_DRIVER_STANDINGS_LIST: {
+			return { ...state, driverStandingsList: action.payload };
+		}
 		default: {
 			return { ...state };
 		}
@@ -39,3 +43,6 @@ export const queryForDriversSelect = ({
 }: IRootState) => ({ limit, offset });
 export const totalDriversSelect = ({ driversState: { total } }: IRootState) =>
 	total;
+export const driverStandingListSelect = ({
+	driversState: { driverStandingsList },
+}: IRootState) => driverStandingsList;
